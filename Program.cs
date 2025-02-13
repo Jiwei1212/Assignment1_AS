@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Assignment1.Model;
 using Microsoft.AspNetCore.Authentication;
@@ -19,6 +19,8 @@ builder.Services.AddScoped<AuditLogger>();
 
 builder.Services.AddSingleton<SessionTracker>();
 
+builder.Services.AddSingleton<EmailService>();
+
 // Register the Encryption service
 builder.Services.AddScoped<Encryption>();
 
@@ -31,7 +33,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
     options.Lockout.AllowedForNewUsers = true;
     options.Lockout.MaxFailedAccessAttempts = 3; // Lockout after 3 failed attempts
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5); // Lockout duration
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1); // Lockout duration
 })
 .AddEntityFrameworkStores<AuthDbContext>()
 .AddDefaultTokenProviders();
@@ -41,7 +43,7 @@ builder.Services.AddSession(options =>
 {
     options.Cookie.HttpOnly = true; // Secure the session cookie from JavaScript
     options.Cookie.IsEssential = true; // Mark the cookie as essential
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session expiration
+    options.IdleTimeout = TimeSpan.FromSeconds(10); // Set session expiration
 });
 
 
@@ -63,30 +65,6 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
-
-app.Use(async (context, next) =>
-{
-    var user = context.User;
-    // Check if the user and identity are not null
-    if (user?.Identity?.IsAuthenticated == true)
-    {
-        // Check if session has expired
-        var lastActivity = context.Session.GetString("LastActivity");
-        if (!string.IsNullOrEmpty(lastActivity))
-        {
-            var lastActivityTime = DateTime.Parse(lastActivity);
-            if ((DateTime.Now - lastActivityTime).TotalMinutes > 15) // Timeout after 10 seconds
-            {
-                await context.SignOutAsync(IdentityConstants.ApplicationScheme); // Sign out the user
-                context.Response.Redirect("/Login?timeout=true"); // Redirect to login with timeout message
-                return;
-            }
-        }
-        context.Session.SetString("LastActivity", DateTime.Now.ToString()); // Update last activity timestamp
-    }
-    await next();
-});
-
 
 app.UseStatusCodePagesWithRedirects("/errors/{0}");
 
