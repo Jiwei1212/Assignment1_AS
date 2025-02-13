@@ -18,6 +18,7 @@ namespace Assignment1.Model
         public string Gender { get; set; }
 
         [Required]
+        [RegularExpression("^[STFG]\\d{7}[A-Z]$", ErrorMessage = "Invalid NRIC format.")]
         public string NRIC { get; set; } // Encrypt before saving in the database
 
         [Required]
