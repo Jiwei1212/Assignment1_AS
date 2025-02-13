@@ -32,10 +32,7 @@ namespace Assignment1.Pages
 
         public void OnGet()
         {
-            if (Request.Query.ContainsKey("timeout") && Request.Query["timeout"] == "true")
-            {
-                ViewData["Message"] = "Your session has expired. Please log in again.";
-            }
+       
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -76,6 +73,7 @@ namespace Assignment1.Pages
                 {
                     _logger.LogInformation($"User {user.UserName} successfully logged in.");
                     _auditLogger.Log(user.Id, "User logged in.");
+
 
                     _sessionTracker.AddSession(user.Id, HttpContext.Session.Id);
 
