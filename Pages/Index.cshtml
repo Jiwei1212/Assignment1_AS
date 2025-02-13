@@ -1,0 +1,41 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container mt-5">
+    <h1>Welcome to Our Website</h1>
+
+    @if (Model.IsAuthenticated)
+    {
+        <div class="alert alert-success">
+            <strong>Welcome, @Model.CurrentUser.Email!</strong> 🎉
+
+            @if (Model.CurrentUserProfile != null)
+            {
+                <p><strong>First Name:</strong> @Model.CurrentUserProfile.FirstName</p>
+                <p><strong>Last Name:</strong> @Model.CurrentUserProfile.LastName</p>
+                <p><strong>Email:</strong> @Model.DecryptedEmail</p>  <!-- Display decrypted email -->
+                <p><strong>NRIC:</strong> @Model.DecryptedNRIC</p>  <!-- Display decrypted NRIC -->
+                <p><strong>Gender:</strong> @Model.CurrentUserProfile.Gender</p>
+                <p><strong>Date of Birth:</strong> @Model.CurrentUserProfile.DateOfBirth.ToShortDateString()</p>
+                <p><strong>Who Am I:</strong> @Model.CurrentUserProfile.WhoAmI</p>
+
+                
+            }
+            else
+            {
+                <p>User profile not found.</p>
+            }
+        </div>
+    }
+    else
+    {
+        <p>Please <a href="/Login">log in</a> to see your details.</p>
+    }
+
+</div>
+
+
+

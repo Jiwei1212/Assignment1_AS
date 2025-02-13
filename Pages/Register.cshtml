@@ -1,0 +1,150 @@
+﻿@page
+@model Assignment1.Pages.RegisterModel
+@{
+}
+<head>
+    <!-- Add Google reCAPTCHA v3 script -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LeLcNMqAAAAAIYTLYaBcoMFqyMtuofqzzpaVVD5"></script>
+</head>
+
+<div class="container mt-5">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-sm-12 col-md-12 col-lg-6">
+            <h1 class="mb-3">Register</h1>
+
+            <form method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.FirstName">First Name</label>
+                    <input type="text" asp-for="RModel.FirstName" class="form-control" />
+                    <span asp-validation-for="RModel.FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.LastName">Last Name</label>
+                    <input type="text" asp-for="RModel.LastName" class="form-control" />
+                    <span asp-validation-for="RModel.LastName" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Gender">Gender</label>
+                    <select asp-for="RModel.Gender" class="form-control">
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <span asp-validation-for="RModel.Gender" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.NRIC">NRIC</label>
+                    <input type="text" asp-for="RModel.NRIC" class="form-control" />
+                    <span asp-validation-for="RModel.NRIC" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Email">Email Address</label>
+                    <input type="email" asp-for="RModel.Email" class="form-control" />
+                    <span asp-validation-for="RModel.Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Password">Password</label>
+                    <input type="password" asp-for="RModel.Password" class="form-control" id="password" />
+                    <small id="password-strength" class="d-block mt-1"></small>
+                    <ul id="password-requirements" class="text-danger small"></ul>
+                    <span asp-validation-for="RModel.Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.ConfirmPassword">Confirm Password</label>
+                    <input type="password" asp-for="RModel.ConfirmPassword" class="form-control" id="confirm-password" />
+                    <small id="confirm-password-error" class="text-danger d-block mt-1"></small>
+                    <span asp-validation-for="RModel.ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.DateOfBirth">Date of Birth</label>
+                    <input type="date" asp-for="RModel.DateOfBirth" class="form-control" />
+                    <span asp-validation-for="RModel.DateOfBirth" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.Resume">Upload Resume (PDF Only)</label>
+                    <input type="file" asp-for="RModel.Resume" class="form-control" accept=".pdf,.docx" id="resume-upload" />
+                    <span asp-validation-for="RModel.Resume" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="RModel.WhoAmI">Who Am I</label>
+                    <textarea asp-for="RModel.WhoAmI" class="form-control"></textarea>
+                    <span asp-validation-for="RModel.WhoAmI" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </div>
+
+                <!-- Hidden reCAPTCHA token input field -->
+                <input type="hidden" id="g-recaptcha-response" name="g-recaptcha-response">
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    grecaptcha.ready(function() {
+        grecaptcha.execute('6LeLcNMqAAAAAIYTLYaBcoMFqyMtuofqzzpaVVD5', { action: 'register' }).then(function(token) {
+            // Add token to the form as a hidden input field
+            document.getElementById('g-recaptcha-response').value = token;
+        });
+    });
+</script>
+
+<!-- JavaScript for Validation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirm-password");
+        const passwordStrengthIndicator = document.getElementById("password-strength");
+        const passwordRequirements = document.getElementById("password-requirements");
+        const confirmPasswordError = document.getElementById("confirm-password-error");
+
+        // Password Strength Validation
+        passwordInput.addEventListener("input", function () {
+            const password = passwordInput.value;
+            let strength = 0;
+            let messages = [];
+
+            if (password.length >= 12) strength++;
+            else messages.push("At least 12 characters required");
+
+            if (/[a-z]/.test(password)) strength++;
+            else messages.push("At least one lowercase letter required");
+
+            if (/[A-Z]/.test(password)) strength++;
+            else messages.push("At least one uppercase letter required");
+
+            if (/\d/.test(password)) strength++;
+            else messages.push("At least one number required");
+
+            if (/[\W_]/.test(password)) strength++;
+            else messages.push("At least one special character required");
+
+            passwordStrengthIndicator.style.color = strength >= 5 ? "green" : "red";
+            passwordStrengthIndicator.textContent = strength >= 5 ? "Strong Password ✅" : "Weak Password ❌";
+            passwordRequirements.innerHTML = messages.map(msg => `<li>${msg}</li>`).join("");
+        });
+
+        // Confirm Password Match
+        confirmPasswordInput.addEventListener("input", function () {
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordError.textContent = "Passwords do not match!";
+            } else {
+                confirmPasswordError.textContent = "";
+            }
+        });
+    });
+</script>

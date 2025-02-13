@@ -1,0 +1,42 @@
+﻿@page
+@model Assignment1.Pages.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<!-- Display lockout message if set -->
+@if (ViewData["Message"] != null)
+{
+    <div class="alert alert-warning" role="alert">
+        @ViewData["Message"]
+    </div>
+}
+
+<!-- Login Form -->
+<form method="post">
+    <!-- Display general errors -->
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="mb-3">
+        <label asp-for="LModel.Email" class="form-label"></label>
+        <input asp-for="LModel.Email" class="form-control" />
+        <span asp-validation-for="LModel.Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LModel.Password" class="form-label"></label>
+        <input asp-for="LModel.Password" type="password" class="form-control" />
+        <span asp-validation-for="LModel.Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-check">
+        <input asp-for="LModel.RememberMe" type="checkbox" class="form-check-input" />
+        <label asp-for="LModel.RememberMe" class="form-check-label">Remember Me</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Login</button>
+</form>
+
+
