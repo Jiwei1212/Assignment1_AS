@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using System;
 
 public class IndexModel : PageModel
 {
@@ -14,14 +15,16 @@ public class IndexModel : PageModel
     private readonly AuthDbContext _dbContext;  // Your DbContext
     private readonly Encryption _encryptionService;  // Your Encryption service
     private readonly AuditLogger _auditLogger;
+    private readonly SessionTracker _sessionTracker;
 
-    public IndexModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, AuthDbContext dbContext, Encryption encryptionService, AuditLogger auditLogger)
+    public IndexModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, AuthDbContext dbContext, Encryption encryptionService, AuditLogger auditLogger, SessionTracker sessionTracker)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _dbContext = dbContext;
         _encryptionService = encryptionService;
         _auditLogger = auditLogger;
+        _sessionTracker = sessionTracker;
     }
 
     public IdentityUser CurrentUser { get; set; }
@@ -29,6 +32,7 @@ public class IndexModel : PageModel
     public bool IsAuthenticated => _signInManager.IsSignedIn(User);
     public string DecryptedEmail { get; set; }
     public string DecryptedNRIC { get; set; }
+
     public async Task OnGetAsync()
     {
         if (IsAuthenticated) // Check if the user is signed in
@@ -43,6 +47,15 @@ public class IndexModel : PageModel
 
             if (CurrentUser != null)
             {
+                // Check if the session is still active
+                if (!_sessionTracker.IsSessionActive(CurrentUser.Id))
+                {
+                    await _signInManager.SignOutAsync();
+                    HttpContext.Session.Clear();
+                    Response.Redirect("/Login");
+                    return;
+                }
+
                 CurrentUserProfile = await _dbContext.UserProfiles
                     .FirstOrDefaultAsync(u => u.UserId == CurrentUser.Id);
 

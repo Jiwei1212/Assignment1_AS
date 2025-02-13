@@ -1,27 +1,39 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Assignment1.Services
+public class SessionTracker
 {
-    public class SessionTracker
+    private readonly ConcurrentDictionary<string, (string SessionId, DateTime LoginTime)> _sessions = new ConcurrentDictionary<string, (string, DateTime)>();
+
+    // Add session to tracker
+    public void AddSession(string userId, string sessionId)
     {
-        private readonly ConcurrentDictionary<string, string> _sessions = new ConcurrentDictionary<string, string>();
+        _sessions[userId] = (sessionId, DateTime.Now);
+    }
 
-        // Add session to tracker
-        public void AddSession(string userId, string sessionId)
+    // Remove session from tracker
+    public void RemoveSession(string userId)
+    {
+        _sessions.TryRemove(userId, out _);
+    }
+
+    // Check if session is active for the user
+    public bool IsSessionActive(string userId)
+    {
+        if (_sessions.ContainsKey(userId))
         {
-            _sessions[userId] = sessionId;
+            var (sessionId, loginTime) = _sessions[userId];
+
+            // Check if session is expired (10 seconds timeout)
+            if (DateTime.Now - loginTime > TimeSpan.FromSeconds(10))
+            {
+                // Session expired, remove it
+                RemoveSession(userId);
+                return false;
+            }
+
+            return true; // Session is still active
         }
 
-        // Remove session from tracker
-        public void RemoveSession(string userId)
-        {
-            _sessions.TryRemove(userId, out _);
-        }
-
-        // Check if session is active for the user
-        public bool IsSessionActive(string userId)
-        {
-            return _sessions.ContainsKey(userId);
-        }
+        return false; // No session found
     }
 }
